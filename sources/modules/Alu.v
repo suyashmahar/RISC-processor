@@ -20,32 +20,72 @@ module AddSub(
     input wire [31:0] b,
 
     output wire [31:0] s,
-    output reg [31:0] z,
-    output wire [31:0] v,
-    output wire [31:0] n
+    output wire z,
+    output wire v,
+    output wire n
 );
 
-   reg [31:0]     xb;
+    wire [31:0]     xb;
 
-   integer 	i = 0;
+    integer 	i = 0;
    
-   always @(b, alufn[0]) begin
-      for (i = 0; i < 32; i = i + 1) begin
-	xb[i] = b[i] ^ alufn[0];
-      end
-   end
+    assign xb = b ^ {32{alufn[0]}};
+    assign s = a + xb + alufn[0];
+    assign z = (s == 32'h00000000);
+    assign v = (a[31] & xb[31] & (~s[31])) + ((~a[31]) & (~xb[31]) & s[31]);
+    assign n = s[31]; 
 
-   assign s = a + xb + alufn[0];
+endmodule
 
-   reg 	   z_loc;
-   always @(s) begin
-      for (i = 0; i < 31; i = i + 1) begin
-         z_loc = z_loc + s[i]; 
-      end
-      z = z_loc;
-   end
+module CmpModule(
+    input wire [5:0] alufn,
+    input wire [31:0] a,
+    input wire [31:0] b,
 
-   assign v = (a[31] & xb[31] & (~s[31])) + ((~a[31]) & (~xb[31]) & s[31]);
-   assign n = s[31]; 
+    output wire [31:0] cmp
+);
+
+wire [31:0] s;
+wire z;
+wire v;
+wire n;
+
+AddSub add_sub_inst_0( 
+    .alufn({{2'b0},{alufn[2:1]},{1{1'b1}}}), .a(a), .b(b), .s(s), .z(z), .v(v), .n(n)
+);
+
+reg lsb;
+
+// Calculate LSB using combination of z, v, n and alufn[2:1]
+always @(alufn, z, v, n) begin
+    if (alufn[2:1] == 2'b01) begin
+        lsb = z;
+    end else if (alufn[2:1] == 2'b10) begin
+        lsb = n ^ v;
+    end else if (alufn[2:1] == 2'b11) begin
+        lsb = z + (n ^ v);
+    end
+end
+
+// Set 0th bit of output as lsb and rest 0
+assign cmp = {{31{1'b0}}, {lsb}};
+
+endmodule
+
+module LogicModule(
+    input wire [5:0] alufn,
+    input wire [31:0] a,
+    input wire [31:0] b,
+
+    output reg [31:0] res
+);
+
+integer i = 0;
+
+always @(alufn[3:0], a, b) begin
+    for (i = 0; i < 32; i = i + 1) begin
+        res[i] = alufn[{{b[i]}, {a[i]}}];
+    end 
+end
 
 endmodule

@@ -1,17 +1,20 @@
 `timescale 1ns / 1ps
 
-module AddSub_Testbench;
+module Alu_Testbench;
 
 reg [5:0] alufn;
 reg [31:0] a;
 reg [31:0] b;
 
 wire [31:0] s;
-wire [31:0] z;
-wire [31:0] v;
-wire [31:0] n;
+wire z;
+wire v;
+wire n;
 
-reg [67:0] val [56:0];
+wire [31:0] cmp;
+wire [31:0] logRes;
+
+reg [67:0] val [72:0];
 
 AddSub add_sub_instance_0 (
     .alufn(alufn),
@@ -22,6 +25,22 @@ AddSub add_sub_instance_0 (
     .z(z),
     .v(v),
     .n(n)
+);
+
+CmpModule cmp_module_inst_0 (
+    .alufn(alufn),
+    .a(a),
+    .b(b),
+
+    .cmp(cmp)
+);
+
+LogicModule log_module_inst_0 (
+    .alufn(alufn),
+    .a(a),
+    .b(b),
+
+    .res(logRes)
 );
 
 initial begin
@@ -82,13 +101,32 @@ initial begin
     val[54] = 68'h00000003000000033;
     val[55] = 68'h00000003000000035;
     val[56] = 68'h00000003000000037;
+
+    // Values for verification of boolean logic
+    // unit of alu
+    val[57] = 68'h00000000000000008;
+    val[58] = 68'hFFFFFFFF000000008;
+    val[59] = 68'h00000000FFFFFFFF8;
+    val[60] = 68'hFFFFFFFFFFFFFFFF8;
+    val[61] = 68'h0000000000000000E;
+    val[62] = 68'hFFFFFFFF00000000E;
+    val[63] = 68'h00000000FFFFFFFFE;
+    val[64] = 68'hFFFFFFFFFFFFFFFFE;
+    val[65] = 68'h00000000000000006;
+    val[66] = 68'hFFFFFFFF000000006;
+    val[67] = 68'h00000000FFFFFFFF6;
+    val[68] = 68'hFFFFFFFFFFFFFFFF6;
+    val[69] = 68'h0000000000000000A;
+    val[70] = 68'hFFFFFFFF00000000A;
+    val[71] = 68'h00000000FFFFFFFFA;
+    val[72] = 68'hFFFFFFFFFFFFFFFFA;
 end
 
 integer i = 0;
 always begin
     #10
 
-    alufn = 6'b000000 + val[i][0];
+    alufn = 6'b000000 + val[i][3:0];
     a = val[i][67:36];
     b = val[i][35:4];
 
