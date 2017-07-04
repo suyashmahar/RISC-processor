@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Alu_Testbench;
+module AddSub_Testbench;
 
 reg [5:0] alufn;
 reg [31:0] a;
