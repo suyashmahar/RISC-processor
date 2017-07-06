@@ -2,7 +2,7 @@
 
 // This module was manually verified
 module CtrlLogicModule(
-    input wire [6:0]  OPCODE,
+    input wire [5:0]  OPCODE,
     input wire 	      RESET,
 		       
     output reg [2:0] PCSEL,
