@@ -99,7 +99,7 @@ module CtrlLogicModule(
       BSEL = opcodeROM[OPCODE][5];               // ✔
       WDSEL = opcodeROM[OPCODE][4:3];            // ✔
       WR = (~RESET) & opcodeROM[OPCODE][2];      // ✔
-      WERF = (~RESET) & opcodeROM[OPCODE][1];               //
+      WERF = (~RESET) & opcodeROM[OPCODE][1];    // ✔
       WASEL = opcodeROM[OPCODE][0];              // N/U
    end
    
