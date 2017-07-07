@@ -1,17 +1,17 @@
 `timescale 1ns / 1ps
 
 module RegisterFile (
-    input wire  clk_i,
+    input wire 		 clk_i,
     
-    input wire  [4 : 0]     w_add_i,
-    input wire  [31 : 0]    w_dat_i,
-    input wire  write_en_i,
+    input wire [4 : 0] 	 w_add_i,
+    input wire [31 : 0]  w_dat_i,
+    input wire 		 write_en_i,
     
-    input wire  [4 : 0]     a_add_sel,
-    input wire  [4 : 0]     b_add_sel,
+    input wire [4 : 0] 	 a_add_sel,
+    input wire [4 : 0] 	 b_add_sel,
 
-    output reg  [31 : 0]     r_port_a_o,
-    output reg  [31 : 0]     r_port_b_o
+    output wire [31 : 0] r_port_a_o,
+    output wire [31 : 0] r_port_b_o
 );
 
     reg [31 : 0] mem [31 : 0];  // 32, 32-bit registers
@@ -25,20 +25,25 @@ module RegisterFile (
         end
     end
 
-    always @(a_add_sel) begin
-        if (a_add_sel != 5'b11111) begin
-            r_port_a_o = mem[a_add_sel];
-        end else begin
-            r_port_a_o = 32'h00000000;
-        end
-    end
-
-    always @(b_add_sel) begin
-        if (b_add_sel != 5'b11111) begin
-            r_port_b_o = mem[b_add_sel];
-        end else begin
-            r_port_b_o = 32'h00000000;
-        end
-    end
-
+   assign r_port_a_o = (a_add_sel != 5'b11111) ? mem[a_add_sel] : 32'h00000000;
+   assign r_port_b_o = (b_add_sel != 5'b11111) ? mem[b_add_sel] : 32'h00000000;
+   
+//    always @(a_add_sel) begin
+//       #0.5
+//	 if (a_add_sel != 5'b11111) begin
+//            r_port_a_o = mem[a_add_sel];
+//	 end else begin
+//            r_port_a_o = 32'h00000000;
+//	 end
+//    end
+//   
+//   always @(b_add_sel) begin
+//      #0.5
+//        if (b_add_sel != 5'b11111) begin
+//           r_port_b_o = mem[b_add_sel];
+//        end else begin
+//           r_port_b_o = 32'h00000000;
+//        end
+//   end
+   
 endmodule

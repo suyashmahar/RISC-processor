@@ -38,10 +38,11 @@ module RegfileModule (
 
     // Logic for selection of register 2
     always @(RA2SEL, Rc, Rb, clk) begin
-        if (RA2SEL == 1'b1) begin
+       #2
+         if (RA2SEL == 1'b1) begin
             ra2_loc = Rc;
-        end else begin
+         end else begin
             ra2_loc = Rb;
-        end
+         end
     end
 endmodule

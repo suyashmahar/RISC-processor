@@ -184,7 +184,7 @@ module Alu_Testbench;
         alufn = 6'b100011;
         
         a = 32'hffffff68; 
-        b = 32'hffffff34; 
+        b = 32'h00000008; 
         expected = 32'h00000034; 
         #20
         

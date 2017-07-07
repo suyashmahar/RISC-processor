@@ -21,15 +21,13 @@ module Processor(
    wire [31:0] aluRes;       
    wire        WR;
    wire        WASEL;
-   wire [31:0] MemDataContent;
-   wire [31:0] InstAdd;
-   wire [31:0] DataAdd;
-   wire [31:0] MemDataContent;
-   wire        DataReadEn;
    wire [31:0] MemDataOut;
    wire [31:0] a;
    wire [31:0] b;
+   wire [31:0] Rc; 
 
+   assign Rc = InstData[25:21];
+   
    assign SextC = {{16{InstData[15]}}, InstData[15:0]};
 
    ProgramCounter #(32) pc_inst (
@@ -77,10 +75,10 @@ module Processor(
       .RD2(RD2)
    );
    
-   MemoryModule mem_inst(
+   BasicTestMemory mem_inst(
       .clk(clk), 
-      .InstAdd(InstAdd),
-      .DataAdd(aluRes),
+      .InstAdd(InstAdd/4),
+      .DataAdd(aluRes/4),
       .MemDataContent(RD2),
       .DataReadEn(~WR), 
       .DataWriteEn(WR),

@@ -16,14 +16,16 @@ module ProgramCounter #(
         .inc_pc_o(pc_local_wire)
     );
 
-    // To update PC on positive edge of clock
-    always @(posedge clk_i) begin
-        if (rst_i) begin
-            pc_o = 0;
+   always @(rst_i) begin
+      pc_o = 32'h00000000;
+   end
+ 
+   // To update PC on positive edge of clock
+   always @(posedge clk_i) begin
+      if (rst_i) begin
+         pc_o = 0;
         end else begin
-            pc_o = pc_local_wire;
+           pc_o = pc_local_wire;
         end
-    end
-
-
+   end
 endmodule
