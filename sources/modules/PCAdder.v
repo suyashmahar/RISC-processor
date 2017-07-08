@@ -11,7 +11,7 @@ module PCAdder #(
     Rip32 f_Adder_instance_1(
         .a_i(pc_in_i), 
         .b_i(INCREMENT), 
-        .cin(0),
+        .cin(1'b0),
 
         .cout(),
         .sum_o(inc_pc_o)

@@ -1,45 +1,70 @@
 `timescale 1ns / 1ps
 
-module Processor(
-   input wire clk,
-   input wire RESET
-);
+module Processor 
+  #(
+    parameter RstAddr = 32'h00000000,     // Address to jump upon RESET
+    parameter XAddr = 32'h00000004,       // Address to jump upon exception
+    parameter IllOpAddr = 32'h00000008,    // Address to jump upon execution of illegal Op-code
+    parameter XPReg = 5'b11110            // Register add for storing pc upon exception
+    )(
+      input wire clk,
+      input wire RESET
+      );
    
-   wire [31:0] InstAdd;
-   wire [31:0] InstData;
-   wire [31:0] SextC;
-   wire        WERF;
-   reg [31:0]  WD;
-   wire [31:0] RD1;
-   wire [31:0] RD2;
-   wire [2:0]  PCSEL;
-   wire        RA2SEL;
-   wire        ASEL;
-   wire        BSEL;
-   wire [1:0]  WDSEL;
-   wire [5:0]  ALUFN;
-   wire [31:0] aluRes;       
-   wire        WR;
-   wire        WASEL;
-   wire [31:0] MemDataOut;
-   wire [31:0] a;
-   wire [31:0] b;
-   wire [31:0] Rc; 
+   wire [31:0] 	 InstAdd;       //Address of next instruction to fetch
+   wire [31:0] 	 InstData;      // Instruction fetched from memory
+   wire [31:0] 	 SextC;		// Gets C from Inst and sign extends it
+   wire 	 WERF;		// Write enable for register file
+   reg [31:0] 	 WD;	        // Write data for register file
+   wire [31:0] 	 RD1;		// Data from 1st register corresponding to Ra
+   wire [31:0] 	 RD2;		// Data from 2nd register corresponding to Rb
+   wire [2:0] 	 PCSEL;		// Control for mux selecting next PC
+   wire 	 RA2SEL;	// Controls mux selecting add. for 2nd reg in regile
+   wire 	 ASEL;		// Selects input 'A' for ALU
+   wire 	 BSEL;		// Selects input 'B' for ALU
+   wire [1:0] 	 WDSEL;		// Selects WD
+   wire [5:0] 	 ALUFN;		// alu function 
+   wire [31:0] 	 aluRes;       	// Result from ALU
+   wire 	 WR;		// Write enable for memory
+   wire 	 WASEL;		// Selects write add. for reg file
+   wire [31:0] 	 MemDataOut;	// Output from memory (data)
+   wire [31:0] 	 a;		// Input 'A' to ALU 
+   wire [31:0] 	 b;		// Input 'B' to ALU
+   wire [31:0] 	 Rc;		// Add. of C reg 
+   wire [31:0] 	 JT;
+   wire [31:0] 	 ShftSextC;	// 4*SextC
+   wire [31:0] 	 PcIncr;
+   wire [31:0] 	 branchOffset;
 
+   wire 	 IRQ;
+   wire 	 Z;
+    	 
    assign Rc = InstData[25:21];
-   
    assign SextC = {{16{InstData[15]}}, InstData[15:0]};
-
-   ProgramCounter #(32) pc_inst (
-      .rst_i(RESET), 
-      .clk_i(clk), 
-      .pc_o(InstAdd) 
-   );
-
+   assign ShftSextC = SextC << 2;
+   assign JT = {{RD1[31:2]}, {2'b00}};
+   
+   ProgramCounter #(32) pc_inst 
+     (
+      .RESET(RESET), 
+      .clk(clk),
+      .PCSEL(PCSEL),
+      .XAddr(XAddr),
+      .RstAddr(RstAddr),
+      .IllOpAddr(IllOpAddr),
+      .JT(JT),
+      .ShftSextC(ShftSextC),
+      .pc_o(InstAdd),
+      .PcIncr(PcIncr),
+      .branchOffset(branchOffset)
+      );
+   
    // Connection for ALU using BSEL from CtrlModule
-   assign a = RD1;
+   assign a = ASEL ? {{1'b0}, {branchOffset[30:0]}} : RD1;
    assign b = BSEL ? SextC : RD2;
-   Alu alu_inst(
+   
+   Alu alu_inst
+     (
       .alufn(ALUFN),
       .a(a),
       .b(b),
@@ -47,24 +72,27 @@ module Processor(
       .z(),
       .v(),
       .n()
-   );
+      );
 
    always @(aluRes, MemDataOut, WDSEL) begin
       case (WDSEL)
-	 2'b00:
-	   WD = {32{1'b0}};
-	 2'b01:
-	   WD = aluRes;
-	 2'b10:
-	   WD = MemDataOut;
-	 default:
-	   WD = {32{1'b0}};
+	2'b00:
+	  WD = PcIncr;
+	2'b01:
+	  WD = aluRes;
+	2'b10:
+	  WD = MemDataOut;
+	default:
+	  WD = {32{1'b0}};
       endcase // case (WDSEL)
    end // always @ (alu, RD, WDSEL)
    
-	
-   RegfileModule regFile_inst(
+   
+   RegfileModule regFile_inst
+     (
       .clk(clk), 
+      .XPReg(XPReg),
+      .WASEL(WASEL),
       .Ra(InstData[20:16]), 
       .Rb(InstData[15:11]), 
       .Rc(InstData[25:21]), 
@@ -73,9 +101,10 @@ module Processor(
       .WD(WD), 
       .RD1(RD1), 
       .RD2(RD2)
-   );
+      );
    
-   BasicTestMemory mem_inst(
+   BasicTestMemory mem_inst
+     (
       .clk(clk), 
       .InstAdd(InstAdd/4),
       .DataAdd(aluRes/4),
@@ -84,9 +113,10 @@ module Processor(
       .DataWriteEn(WR),
       .MemDataOut(MemDataOut), 
       .MemInstOut(InstData)			 
-   );
-
-   CtrlLogicModule ctrl_inst(
+      );
+   
+   CtrlLogicModule ctrl_inst
+     (
       .OPCODE(InstData[31:26]),
       .RESET(RESET),	       
       .PCSEL(PCSEL),
@@ -97,6 +127,8 @@ module Processor(
       .ALUFN(ALUFN),
       .WR(WR),
       .WERF(WERF),
-      .WASEL(WASEL)
-   );
+      .WASEL(WASEL),
+      .IRQ(IRQ),
+      .Z(Z)
+      );
 endmodule

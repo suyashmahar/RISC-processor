@@ -3,29 +3,42 @@
 module ProgramCounter #(
     parameter ARCHITECTURE = 32 
 )(
-    input wire rst_i,   // Resets PC to 0x0
-    input wire clk_i,   // Global clk
-    output reg [ARCHITECTURE-1:0] pc_o     // Program counter output
-);
-
-    wire [ARCHITECTURE-1:0] pc_local_wire;
-
-    // Increment PC by four
-    PCAdder #(32, 32'h00000004) pc_adder_instance_0 (
-        .pc_in_i(pc_o),
-        .inc_pc_o(pc_local_wire)
-    );
-
-   always @(rst_i) begin
-      pc_o = 32'h00000000;
-   end
- 
-   // To update PC on positive edge of clock
-   always @(posedge clk_i) begin
-      if (rst_i) begin
-         pc_o = 0;
-        end else begin
-           pc_o = pc_local_wire;
-        end
-   end
+  input wire 			 RESET, // Resets PC to 0x0
+  input wire 			 clk, // Global clk
+  input wire [2:0] 		 PCSEL, // Selects source of next PC 
+  input wire [31:0] 		 XAddr,
+  input wire [31:0] 		 RstAddr,
+  input wire [31:0] 		 IllOpAddr,
+  input wire [31:0] 		 JT,
+  input wire [31:0] 		 ShftSextC, // 4*SextC 
+  output wire [ARCHITECTURE-1:0] pc_o, // Program counter output
+  output wire [31:0] 		 PcIncr,
+  output wire [31:0] 		 branchOffset
+  );
+   
+   reg [31:0] 			 pc;
+   wire [31:0] 			 PcIncr;
+   wire 			 MsbJt;
+   
+   assign pc_o = RESET ? RstAddr : pc;
+   assign PcIncr = pc + 32'h00000004;
+   assign MsbJt = pc[31] ? JT[31] : pc[31];
+   assign branchOffset = PcIncr + ShftSextC;
+   
+   always @(posedge clk) begin
+       case (PCSEL)
+	 3'b000:
+	   pc = PcIncr;
+	 3'b001:
+	   pc = branchOffset;
+	 3'b010:
+	   pc = {{MsbJt}, {JT[30:0]}};
+	 3'b011:
+	   pc = IllOpAddr;
+	 3'b100:
+	   pc = XAddr;
+	 default:
+	   pc = RstAddr;
+       endcase // case (PCSEL)
+   end // always @ (*)
 endmodule
