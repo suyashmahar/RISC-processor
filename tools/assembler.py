@@ -1,7 +1,7 @@
 import re
 import sys
 
-""" Define enum """
+""" Define enum """ 
 def enum(**enums):
     return type('Enum', (), enums)
 
