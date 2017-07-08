@@ -54,8 +54,7 @@ for line in prog:
     else:
         if (isWithLiteral):
             literal = line[-16:]
-            print opcode + "(R" + str(int(ra, 2)) + ", " + str(int(literal, 2)) + ", R" + str(int(rc, 2)) + ")"
+            print opcode + " %R" + str(int(ra, 2)) + ", " + str(int(literal, 2)) + ", %R" + str(int(rc, 2)) + ""
         else:
             rb = line[17:22]
-            print opcode + "(R" + str(int(ra, 2)) + ", R" + str(int(rb, 2)) + ", R" + str(int(rc, 2)) + ")"
-        
+            print opcode + " %R" + str(int(ra, 2)) + ", %R" + str(int(rb, 2)) + ", %R" + str(int(rc, 2)) + ""
