@@ -2,16 +2,17 @@
 
 module Processor 
   #(
-    parameter RstAddr = 32'h00000000,     // Address to jump upon RESET
-    parameter XAddr = 32'h00000004,       // Address to jump upon exception
-    parameter IllOpAddr = 32'h00000008,    // Address to jump upon execution of illegal Op-code
+    parameter RstAddr = 32'h80000000,     // Address to jump upon RESET
+    parameter XAddr = 32'h80000008,       // Address to jump upon exception
+    parameter IllOpAddr = 32'h80000004,    // Address to jump upon execution of illegal Op-code
     parameter XPReg = 5'b11110            // Register add for storing pc upon exception
     )(
       input wire clk,
-      input wire RESET
+      input wire RESET,
+output   wire [31:0] 	 InstAdd       //Address of next instruction to fetch
+
       );
    
-   wire [31:0] 	 InstAdd;       //Address of next instruction to fetch
    wire [31:0] 	 InstData;      // Instruction fetched from memory
    wire [31:0] 	 SextC;		// Gets C from Inst and sign extends it
    wire 	 WERF;		// Write enable for register file
@@ -43,6 +44,8 @@ module Processor
    assign SextC = {{16{InstData[15]}}, InstData[15:0]};
    assign ShftSextC = SextC << 2;
    assign JT = {{RD1[31:2]}, {2'b00}};
+
+   assign Z = RD1 == 32'h00000000;
    
    ProgramCounter #(32) pc_inst 
      (
@@ -52,7 +55,7 @@ module Processor
       .XAddr(XAddr),
       .RstAddr(RstAddr),
       .IllOpAddr(IllOpAddr),
-      .JT(JT),
+      .JT(JT&32'hfffffffc),
       .ShftSextC(ShftSextC),
       .pc_o(InstAdd),
       .PcIncr(PcIncr),
@@ -75,9 +78,9 @@ module Processor
       );
 
    always @(aluRes, MemDataOut, WDSEL) begin
-      case (WDSEL)
+       case (WDSEL)
 	2'b00:
-	  WD = PcIncr;
+	  WD = {{InstAdd[31]}, {PcIncr[30:0]}};
 	2'b01:
 	  WD = aluRes;
 	2'b10:
@@ -103,10 +106,10 @@ module Processor
       .RD2(RD2)
       );
    
-   BasicTestMemory mem_inst
+   BranchingTestMemory mem_inst
      (
       .clk(clk), 
-      .InstAdd(InstAdd/4),
+      .InstAdd({{1'b0}, {InstAdd[30:0]}}/4),
       .DataAdd(aluRes/4),
       .MemDataContent(RD2),
       .DataReadEn(~WR), 

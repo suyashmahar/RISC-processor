@@ -22,15 +22,15 @@ module ProgramCounter #(
    
    assign pc_o = RESET ? RstAddr : pc;
    assign PcIncr = pc + 32'h00000004;
-   assign MsbJt = pc[31] ? JT[31] : pc[31];
+   assign MsbJt = pc[31] ?  JT[31] : pc[31];
    assign branchOffset = PcIncr + ShftSextC;
    
    always @(posedge clk) begin
        case (PCSEL)
 	 3'b000:
-	   pc = PcIncr;
+	   pc = {{pc[31]}, {PcIncr[30:0]}};
 	 3'b001:
-	   pc = branchOffset;
+	   pc = {{pc[31]}, {branchOffset[30:0]}};
 	 3'b010:
 	   pc = {{MsbJt}, {JT[30:0]}};
 	 3'b011:

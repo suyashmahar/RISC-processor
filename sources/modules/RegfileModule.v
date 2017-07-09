@@ -22,8 +22,8 @@ module RegfileModule (
    // Connects RA2 selection mux to ra2 port
    // on register file
    reg [4 : 0] 		 ra2_loc;
-
-   wire 		 WA;
+   
+   wire [4:0] 		 WA;
    assign WA = WASEL ? XPReg : Rc;
       
    // Register file module instantiation for
@@ -44,7 +44,7 @@ module RegfileModule (
       );
 
    // Logic for selection of register 2
-   always @(RA2SEL, Rc, Rb, clk) begin
+   always @(*) begin
        #2
          if (RA2SEL == 1'b1) begin
              ra2_loc = Rc;

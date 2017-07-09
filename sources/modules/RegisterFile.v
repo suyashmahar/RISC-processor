@@ -28,22 +28,4 @@ module RegisterFile (
    assign r_port_a_o = (a_add_sel != 5'b11111) ? mem[a_add_sel] : 32'h00000000;
    assign r_port_b_o = (b_add_sel != 5'b11111) ? mem[b_add_sel] : 32'h00000000;
    
-//    always @(a_add_sel) begin
-//       #0.5
-//	 if (a_add_sel != 5'b11111) begin
-//            r_port_a_o = mem[a_add_sel];
-//	 end else begin
-//            r_port_a_o = 32'h00000000;
-//	 end
-//    end
-//   
-//   always @(b_add_sel) begin
-//      #0.5
-//        if (b_add_sel != 5'b11111) begin
-//           r_port_b_o = mem[b_add_sel];
-//        end else begin
-//           r_port_b_o = 32'h00000000;
-//        end
-//   end
-   
 endmodule
