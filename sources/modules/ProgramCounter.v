@@ -24,6 +24,10 @@ module ProgramCounter #(
    assign PcIncr = pc + 32'h00000004;
    assign MsbJt = pc[31] ?  JT[31] : pc[31];
    assign branchOffset = PcIncr + ShftSextC;
+
+   always @(negedge RESET) begin
+       pc = RstAddr;
+   end
    
    always @(posedge clk) begin
        case (PCSEL)
