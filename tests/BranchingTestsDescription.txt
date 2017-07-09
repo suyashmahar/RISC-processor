@@ -1,0 +1,94 @@
+This code makes the following assumptions:
+  after reset, the Beta starts executing at location 0
+  illegal instructions cause a trap to location 4
+  interrupts cause a trap to location 8
+
+If this program completes successfully, it enters a two-instruction
+loop at locations 0x3C4 and 0x3C8.  It reaches 0x3C4 for the first
+time on cycle 277.
+
+If this program detects an error, it enters a two-instruction loop at
+locations 0x00C and 0x010 with an error code in %R0.  The instruction
+at 0x00C is ADDC %R0,0,%R31 so it is usually possible to use the
+waveform browser in the simulator to display the error code.
+
+possible error addresses in %R0:
+ 0x004 error1: BEQ %R31,... didn't branch
+ 0x030 erro%r3: BNE %R31,... did branch
+
+ 0x038 cmp1: CMPEQC %R31,0,%R0 failed
+ 0x040 cmp2: CMPLEC %R31,0,%R0 failed
+ 0x048 cmp3: CMPLTC %R31,1,%R0 failed
+ 0x050 cmp4: CMPEQC %R31,-1,%R0 failed
+ 0x058 cmp5: CMPLEC %R31,-1,%R0 failed
+ 0x060 cmp6: CMPLTC %R31,-1,%R0 failed
+ 0x078 cmp7: didn't generate 0x8000000 or 0x7FFFFFFF correctly  see code
+ 0x080 cmp8: 0x8000000 <= 0x7FFFFFF failed
+ 0x088 cmp9: 0x7FFFFFF <= 0x80000000 failed
+
+
+ 0x090 reg1: ADD %R31,%R31,%R0 didn't put 0 into %R0
+ 0x098 reg2: ADDC %R31,0,%R0 didn't put 0 into %R0
+ 0x120 reg3: ADDC %R31,0,%R0 didn't produce the correct value
+ 0x128 reg4: ADDC %R31,1,%R1 didn't produce the correct value
+ 0x130 reg5: ADDC %R31,2,%R2 didn't produce the correct value
+ 0x138 reg6: ADDC %R31,3,%R3 didn't produce the correct value
+ 0x140 reg7: ADDC %R31,4,%R4 didn't produce the correct value
+ 0x148 reg8: ADDC %R31,5,%R5 didn't produce the correct value
+ 0x150 reg9: ADDC %R31,6,%R6 didn't produce the correct value
+ 0x158 reg10: ADDC %R31,7,%R7 didn't produce the correct value
+ 0x160 reg11: ADDC %R31,8,%R8 didn't produce the correct value
+ 0x168 reg12: ADDC %R31,9,%R9 didn't produce the correct value
+ 0x170 reg13: ADDC %R31,10,%R10 didn't produce the correct value
+ 0x178 reg14: ADDC %R31,11,%R11 didn't produce the correct value
+ 0x180 reg15: ADDC %R31,12,%R12 didn't produce the correct value
+ 0x188 reg16: ADDC %R31,13,%R13 didn't produce the correct value
+ 0x190 reg17: ADDC %R31,14,%R14 didn't produce the correct value
+ 0x198 reg18: ADDC %R31,15,%R15 didn't produce the correct value
+ 0x1A0 reg19: ADDC %R31,16,%R16 didn't produce the correct value
+ 0x1A8 reg20: ADDC %R31,17,%R17 didn't produce the correct value
+ 0x1B0 reg21: ADDC %R31,18,%R18 didn't produce the correct value
+ 0x1B8 reg22: ADDC %R31,19,%R19 didn't produce the correct value
+ 0x1C0 reg23: ADDC %R31,20,%R20 didn't produce the correct value
+ 0x1C8 reg24: ADDC %R31,21,%R21 didn't produce the correct value
+ 0x1D0 reg25: ADDC %R31,22,%R22 didn't produce the correct value
+ 0x1D8 reg26: ADDC %R31,23,%R23 didn't produce the correct value
+ 0x1E0 reg27: ADDC %R31,24,%R24 didn't produce the correct value
+ 0x1E8 reg28: ADDC %R31,25,%R25 didn't produce the correct value
+ 0x1F0 reg29: ADDC %R31,26,%R26 didn't produce the correct value
+ 0x1F8 reg30: ADDC %R31,27,%R27 didn't produce the correct value
+ 0x200 reg31: ADDC %R31,28,%R28 didn't produce the correct value
+ 0x208 reg32: ADDC %R31,29,%R29 didn't produce the correct value
+ 0x210 reg33: ADDC %R31,30,%R30 didn't produce the correct value
+ 0x214 reg34: ADDC %R31,31,%R31 changed the value of %R31!
+
+ 0x224 jmp1: JMP executed following instruction
+ 0x238 jmp2: JMP didn't fill LP correctly
+
+ 0x24C add1: LDR failed or 0xAAAAAAAA + 0x55555555 != 1
+ 0x25C add2: 0xAAAAAAAA + 0xAAAAAAAA != 0x55555554
+ 0x268 add3: 0x55555555 + 0x55555555 != 0xAAAAAAAA
+ 0x274 add4: 1 - 1 != 0  carry propagation test
+
+ 0x288 bool1: 0x0F0F & 0x7F00 != 0x0F00
+ 0x294 bool2: 0x0F0F & 0x7F00 != 0x7F0F
+ 0x2A0 bool3: 0x0F0F & 0x7F00 != 0x700F
+
+ 0x2B0 shift1: 1 << 32 != 1
+ 0x2C0 shift2:  1 << 31 >>signed 17 != 0xFFFFC000
+ 0x2CC shift3:  1 << 31 >>unsigned 17 != 0x00004000
+
+ 0x2E8 illop1: XP not filled correctly on illegal op trap
+ 0x310 illop2: expected 9 illops: 00, 1A, 1C, 27, 2B, 2F, 37, 3B, 3F
+
+ 0x33C ldst1: load or store failure
+ 0x348 ldst2: load or store failure
+ 0x354 ldst3: load or store failure
+ 0x360 ldst4: load or store failure
+
+ 0x388 bypass1: alu-bypass failure
+ 0x3B0 bypass2: pc-bypass failure
+
+ 0x3BC int1: interrupt didn't happen on correct cycle
+ 0x3C4 int2: XP not filled correctly on interrupt
+ 
