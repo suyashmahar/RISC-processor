@@ -1,7 +1,7 @@
 RISC processor
 ==============
 
-This repository contains basic implementation of a 32-bit single core unpipelined RISC processor written in Verilog. This project was to understand how processors and operating systems work.  
+This repository contains basic implementation of a 32-bit single core unpipelined RISC processor written in Verilog. This is a hobby project to understand how processors and operating systems work.  
 
 Along with processor a simple assembler and disassembler written in python is also included. 
 
@@ -91,8 +91,8 @@ TODOs
 
 Contributor
 ===========
-Suyash Mahar (@suyashmahar)
+Suyash Mahar ([@suyashmahar](https://github.com/suyashmahar))
 
 License
 =======
-RISC-Processor is licensed under MIT-license unless specifically mentioned.
+RISC-Processor is licensed under MIT-license unless explicitly mentioned.
