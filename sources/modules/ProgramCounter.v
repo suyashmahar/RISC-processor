@@ -30,7 +30,7 @@ module ProgramCounter #(
    always @(posedge clk) begin
        if (RESET) begin
 	   pc = RstAddr;
-       end else if (IRQ) begin
+       end else if (IRQ & ~pc_o[31]) begin
 	   pc = XAddr;
        end else begin
 	   case (PCSEL)

@@ -6,6 +6,7 @@ module CtrlLogicModule(
     input wire 	     RESET,
     input wire 	     Z,
     input wire 	     IRQ,
+    input wire 	     pc_31,
 		       
     output reg [2:0] PCSEL,
     output reg 	     RA2SEL,
@@ -21,7 +22,7 @@ module CtrlLogicModule(
    reg [16:0] 	     opcodeROM [63:0];
    wire [5:0] 	     opcode_extended;
 
-   assign opcode_extended = IRQ ? 6'b000000 : OPCODE;
+   assign opcode_extended = (~pc_31 & IRQ) ? 6'b000000 : OPCODE;
    
    initial begin
        WR = 0;

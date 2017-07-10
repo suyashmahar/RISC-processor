@@ -129,6 +129,7 @@ module Processor
       .BSEL(BSEL),
       .WDSEL(WDSEL),
       .ALUFN(ALUFN),
+      .pc_31(InstAdd[31]),
       .WR(WR),
       .WERF(WERF),
       .WASEL(WASEL),

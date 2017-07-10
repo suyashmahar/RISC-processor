@@ -340,5 +340,14 @@ module ProcessorTestbench;
        #25 
 	 IRQ = ~IRQ;
    end
+
+   
+
+   always begin
+       #2000
+	 IRQ = ~IRQ;
+       #100
+	 IRQ = ~IRQ;
+   end
 endmodule // ProcessorTestbench
 
