@@ -12,7 +12,7 @@ module RegfileModule (
 
     input wire [31 : 0]  WD,
 
-    input wire [31:0] 	 XPReg,
+    input wire [4:0] 	 XPReg,
     input wire 		 WASEL,
 		      
     output wire [31 : 0] RD1,

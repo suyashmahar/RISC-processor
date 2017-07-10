@@ -277,7 +277,7 @@ module BranchingTestMemory(
 	end
    end
    
-   always @(*) begin
+   always @(DataAdd, InstAdd) begin
        //#2
        MemInstOut = mem[InstAdd];
        MemDataOut = mem[DataAdd];

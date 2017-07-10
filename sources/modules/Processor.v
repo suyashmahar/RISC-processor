@@ -7,39 +7,38 @@ module Processor
     parameter IllOpAddr = 32'h80000004,    // Address to jump upon execution of illegal Op-code
     parameter XPReg = 5'b11110            // Register add for storing pc upon exception
     )(
-      input wire clk,
-      input wire RESET,
-output   wire [31:0] 	 InstAdd       //Address of next instruction to fetch
-
+      input wire 	 clk,
+      input wire 	 RESET,
+      input wire 	 IRQ,
+      output wire [31:0] InstAdd       //Address of next instruction to fetch
       );
    
-   wire [31:0] 	 InstData;      // Instruction fetched from memory
-   wire [31:0] 	 SextC;		// Gets C from Inst and sign extends it
-   wire 	 WERF;		// Write enable for register file
-   reg [31:0] 	 WD;	        // Write data for register file
-   wire [31:0] 	 RD1;		// Data from 1st register corresponding to Ra
-   wire [31:0] 	 RD2;		// Data from 2nd register corresponding to Rb
-   wire [2:0] 	 PCSEL;		// Control for mux selecting next PC
-   wire 	 RA2SEL;	// Controls mux selecting add. for 2nd reg in regile
-   wire 	 ASEL;		// Selects input 'A' for ALU
-   wire 	 BSEL;		// Selects input 'B' for ALU
-   wire [1:0] 	 WDSEL;		// Selects WD
-   wire [5:0] 	 ALUFN;		// alu function 
-   wire [31:0] 	 aluRes;       	// Result from ALU
-   wire 	 WR;		// Write enable for memory
-   wire 	 WASEL;		// Selects write add. for reg file
-   wire [31:0] 	 MemDataOut;	// Output from memory (data)
-   wire [31:0] 	 a;		// Input 'A' to ALU 
-   wire [31:0] 	 b;		// Input 'B' to ALU
-   wire [31:0] 	 Rc;		// Add. of C reg 
-   wire [31:0] 	 JT;
-   wire [31:0] 	 ShftSextC;	// 4*SextC
-   wire [31:0] 	 PcIncr;
-   wire [31:0] 	 branchOffset;
-
-   wire 	 IRQ;
-   wire 	 Z;
-    	 
+   wire [31:0] 		 InstData;      // Instruction fetched from memory
+   wire [31:0] 		 SextC;		// Gets C from Inst and sign extends it
+   wire 		 WERF;		// Write enable for register file
+   reg [31:0] 		 WD;	        // Write data for register file
+   wire [31:0] 		 RD1;		// Data from 1st register corresponding to Ra
+   wire [31:0] 		 RD2;		// Data from 2nd register corresponding to Rb
+   wire [2:0] 		 PCSEL;		// Control for mux selecting next PC
+   wire 		 RA2SEL;	// Controls mux selecting add. for 2nd reg in regile
+   wire 		 ASEL;		// Selects input 'A' for ALU
+   wire 		 BSEL;		// Selects input 'B' for ALU
+   wire [1:0] 		 WDSEL;		// Selects WD
+   wire [5:0] 		 ALUFN;		// alu function 
+   wire [31:0] 		 aluRes;       	// Result from ALU
+   wire 		 WR;		// Write enable for memory
+   wire 		 WASEL;		// Selects write add. for reg file
+   wire [31:0] 		 MemDataOut;	// Output from memory (data)
+   wire [31:0] 		 a;		// Input 'A' to ALU 
+   wire [31:0] 		 b;		// Input 'B' to ALU
+   wire [31:0] 		 Rc;		// Add. of C reg 
+   wire [31:0] 		 JT;
+   wire [31:0] 		 ShftSextC;	// 4*SextC
+   wire [31:0] 		 PcIncr;
+   wire [31:0] 		 branchOffset;
+   
+   wire 		 Z;
+   
    assign Rc = InstData[25:21];
    assign SextC = {{16{InstData[15]}}, InstData[15:0]};
    assign ShftSextC = SextC << 2;
@@ -55,6 +54,7 @@ output   wire [31:0] 	 InstAdd       //Address of next instruction to fetch
       .XAddr(XAddr),
       .RstAddr(RstAddr),
       .IllOpAddr(IllOpAddr),
+      .IRQ(IRQ),
       .JT(JT&32'hfffffffc),
       .ShftSextC(ShftSextC),
       .pc_o(InstAdd),
@@ -77,7 +77,7 @@ output   wire [31:0] 	 InstAdd       //Address of next instruction to fetch
       .n()
       );
 
-   always @(aluRes, MemDataOut, WDSEL) begin
+   always @(aluRes, InstAdd, PcIncr, MemDataOut, WDSEL) begin
        case (WDSEL)
 	2'b00:
 	  WD = {{InstAdd[31]}, {PcIncr[30:0]}};
@@ -122,6 +122,7 @@ output   wire [31:0] 	 InstAdd       //Address of next instruction to fetch
      (
       .OPCODE(InstData[31:26]),
       .RESET(RESET),	       
+      .IRQ(IRQ),
       .PCSEL(PCSEL),
       .RA2SEL(RA2SEL),
       .ASEL(ASEL),
@@ -131,7 +132,6 @@ output   wire [31:0] 	 InstAdd       //Address of next instruction to fetch
       .WR(WR),
       .WERF(WERF),
       .WASEL(WASEL),
-      .IRQ(IRQ),
       .Z(Z)
       );
 endmodule

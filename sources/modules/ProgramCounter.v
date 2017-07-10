@@ -9,15 +9,17 @@ module ProgramCounter #(
   input wire [31:0] 		 XAddr,
   input wire [31:0] 		 RstAddr,
   input wire [31:0] 		 IllOpAddr,
+  input wire 			 IRQ,
   input wire [31:0] 		 JT,
   input wire [31:0] 		 ShftSextC, // 4*SextC 
+  
   output wire [ARCHITECTURE-1:0] pc_o, // Program counter output
   output wire [31:0] 		 PcIncr,
   output wire [31:0] 		 branchOffset
   );
    
    reg [31:0] 			 pc;
-   wire [31:0] 			 PcIncr;
+   
    wire 			 MsbJt;
    
    assign pc_o = RESET ? RstAddr : pc;
@@ -25,24 +27,27 @@ module ProgramCounter #(
    assign MsbJt = pc[31] ?  JT[31] : pc[31];
    assign branchOffset = PcIncr + ShftSextC;
 
-   always @(negedge RESET) begin
-       pc = RstAddr;
-   end
-   
    always @(posedge clk) begin
-       case (PCSEL)
-	 3'b000:
-	   pc = {{pc[31]}, {PcIncr[30:0]}};
-	 3'b001:
-	   pc = {{pc[31]}, {branchOffset[30:0]}};
-	 3'b010:
-	   pc = {{MsbJt}, {JT[30:0]}};
-	 3'b011:
-	   pc = IllOpAddr;
-	 3'b100:
-	   pc = XAddr;
-	 default:
+       if (RESET) begin
 	   pc = RstAddr;
-       endcase // case (PCSEL)
+       end else if (IRQ) begin
+	   pc = XAddr;
+       end else begin
+	   case (PCSEL)
+	     3'b000:
+	       pc = {{pc[31]}, {PcIncr[30:0]}};
+	     3'b001:
+	       pc = {{pc[31]}, {branchOffset[30:0]}};
+	     3'b010:
+	       pc = {{MsbJt}, {JT[30:0]}};
+	     3'b011:
+	       pc = IllOpAddr;
+	     3'b100:
+	       pc = XAddr;
+	     default:
+	       pc = RstAddr;
+	   endcase // case (PCSEL)
+       end // else: !if(RESET)
    end // always @ (*)
-endmodule
+endmodule // ProgramCounter
+

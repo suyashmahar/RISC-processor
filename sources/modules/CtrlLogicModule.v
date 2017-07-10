@@ -5,7 +5,7 @@ module CtrlLogicModule(
     input wire [5:0] OPCODE,
     input wire 	     RESET,
     input wire 	     Z,
-    input wire 	     IRQ, 
+    input wire 	     IRQ,
 		       
     output reg [2:0] PCSEL,
     output reg 	     RA2SEL,
@@ -18,13 +18,16 @@ module CtrlLogicModule(
     output reg 	     WASEL
 );
 
-    reg [16:0] opcodeROM [63:0];
+   reg [16:0] 	     opcodeROM [63:0];
+   wire [5:0] 	     opcode_extended;
+
+   assign opcode_extended = IRQ ? 6'b000000 : OPCODE;
    
-    initial begin
+   initial begin
        WR = 0;
        WERF = 0;
               
-       opcodeROM[6'b000000] = 17'b00000001100000011;
+       opcodeROM[6'b000000] = 17'b00000010000000011;
        opcodeROM[6'b000001] = 17'b00000101100000011;
        opcodeROM[6'b000010] = 17'b00001001100000011;
        opcodeROM[6'b000011] = 17'b00001101100000011;
@@ -93,25 +96,27 @@ module CtrlLogicModule(
 
     // ROM description
     // <ALUFN-6><PCSEL-3><RA2SEL><ASEL><BSEL><WDSEL-2><WR><WERF><WASL>
-   always @(OPCODE, RESET) begin
+   always @(opcode_extended, RESET, Z) begin
       #5
-	ALUFN = opcodeROM[OPCODE][16:11];         
-       RA2SEL = opcodeROM[OPCODE][7];             // ✔
-       ASEL = opcodeROM[OPCODE][6];               
-       BSEL = opcodeROM[OPCODE][5];               // ✔
-       WDSEL = opcodeROM[OPCODE][4:3];            // ✔
-       WR = (~RESET) & opcodeROM[OPCODE][2];      // ✔
-       WERF = (~RESET) & opcodeROM[OPCODE][1];    // ✔
-       WASEL = opcodeROM[OPCODE][0];              
-
-       if (OPCODE == 6'b011101) begin   // BEQ
-	   PCSEL = {{2'b00}, {Z}};               // ✔
-       end else if (OPCODE == 6'b011110) begin    // BNE
-	   PCSEL = {{2'b00}, {~Z}};               // ✔
+	ALUFN = opcodeROM[opcode_extended][16:11];         
+       RA2SEL = opcodeROM[opcode_extended][7];             // ✔
+       ASEL = opcodeROM[opcode_extended][6];               
+       BSEL = opcodeROM[opcode_extended][5];               // ✔
+       WDSEL = opcodeROM[opcode_extended][4:3];            // ✔
+       WR = (~RESET) & opcodeROM[opcode_extended][2];      // ✔
+       WERF = (~RESET) & opcodeROM[opcode_extended][1];    // ✔
+       WASEL = opcodeROM[opcode_extended][0];              
+       
+       // PCSEL logic for BEQ and BNE due to their dependence
+       // on Z
+       if (opcode_extended == 6'b011101) begin   // BEQ
+	   PCSEL = {{2'b00}, {Z}};               
+       end else if (opcode_extended == 6'b011110) begin // BNE
+	   PCSEL = {{2'b00}, {~Z}};               
        end else begin
-	   PCSEL = opcodeROM[OPCODE][10:8];
+	   PCSEL = opcodeROM[opcode_extended][10:8];
        end
-   end
-   
 
-endmodule
+   end // always @ (OPCODE, RESET, Z)
+endmodule // CtrlLogicModule
+

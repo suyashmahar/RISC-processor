@@ -4,27 +4,32 @@ module ProcessorTestbench;
    
    reg clk;
    reg RESET;
+   reg IRQ;
+   
    wire [31:0] InstAdd;
    wire        isCorrect;
    wire [31:0] expAddress;
+
+   integer     i = 0;
+   reg [31:0]  ver[1023:0];
+   
    assign expAddress = ver[i];
-   
-   assign isCorrect = InstAdd == ver[i];
-   
-   
-   Processor uut(
+   assign isCorrect = (InstAdd == ver[i]);
+      
+   Processor uut
+     (
       .clk(clk),
       .RESET(RESET),
+      .IRQ(IRQ),
+      
       .InstAdd(InstAdd)
-   );
-
-   integer i = 0;
-   reg [31:0] ver[1023:0];
+      );
    
    initial begin
        clk = 1;
        RESET = 0;
-
+       IRQ = 0;
+              
        ver[0] = 32'h80000000;
        ver[1] = 32'h8000002C;
        ver[2] = 32'h80000030;
@@ -328,4 +333,12 @@ module ProcessorTestbench;
        #80 
        i = i+1;
    end
-endmodule
+
+   always begin
+       #21820
+	 IRQ = ~IRQ;
+       #25 
+	 IRQ = ~IRQ;
+   end
+endmodule // ProcessorTestbench
+

@@ -33,10 +33,10 @@ module Alu(
 
     wire [31:0] asRes, cmpRes, shftRes, boolRes, mulRes;
 
-    AddSub as_inst_0(.alufn(alufn), .a(a), .b(b), .s(asRes), .z(z), .v(v), .n(n));
-    CmpModule cmp_inst_0(.alufn(alufn), .a(a), .b(b), .cmp(cmpRes));
+    AddSub as_inst_0(.alufn0(alufn[0]), .a(a), .b(b), .s(asRes), .z(z), .v(v), .n(n));
+    CmpModule cmp_inst_0(.alufn(alufn[2:1]), .a(a), .b(b), .cmp(cmpRes));
     LogicModule log_inst_0(.alufn(alufn), .a(a), .b(b), .res(boolRes));
-    ShifterModule shft_inst_0(.alufn(alufn), .a(a), .b(b), .res(shftRes));
+    ShifterModule shft_inst_0(.alufn(alufn[1:0]), .a(a), .b(b[4:0]), .res(shftRes));
     MultModule mult_inst_0(.a(a), .b(b), .res(mulRes));
 
     always @(*) begin
@@ -59,7 +59,7 @@ module Alu(
 endmodule
 
 module AddSub(
-    input wire [5:0] alufn,
+    input wire alufn0,
     input wire [31:0] a,
     input wire [31:0] b,
 
@@ -73,8 +73,8 @@ module AddSub(
 
     integer 	i = 0;
    
-    assign xb = b ^ {32{alufn[0]}};
-    assign s = a + xb + alufn[0];
+    assign xb = b ^ {32{alufn0}};
+    assign s = a + xb + alufn0;
     assign z = (s == 32'h00000000);
     assign v = (a[31] & xb[31] & (~s[31])) + ((~a[31]) & (~xb[31]) & s[31]);
     assign n = s[31]; 
@@ -82,7 +82,7 @@ module AddSub(
 endmodule
 
 module CmpModule(
-    input wire [5:0] alufn,
+    input wire [2:1] alufn,
     input wire [31:0] a,
     input wire [31:0] b,
 
@@ -94,7 +94,7 @@ module CmpModule(
     wire n;
 
     AddSub add_sub_inst_0( 
-        .alufn({{2'b0},{alufn[2:1]},{1{1'b1}}}), .a(a), .b(b), .s(s), .z(z), .v(v), .n(n)
+        .alufn0(1'b1), .a(a), .b(b), .s(s), .z(z), .v(v), .n(n)
     );
 
     // Calculate LSB using combination of z, v, n and alufn[2:1]
@@ -131,9 +131,9 @@ module LogicModule(
 endmodule
 
 module ShifterModule(
-   input [5:0] 	       alufn,
+   input [1:0] 	       alufn,
    input signed [31:0] a,
-   input signed [31:0] b,
+   input signed [4:0] b,
 
    output reg [31:0]   res
 );
