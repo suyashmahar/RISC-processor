@@ -41,33 +41,56 @@ Processor supports 30 basic instructions. All of the instructions available are 
 or  
 ```<OP_code><RegAdd1><RegAdd2><16BitLiteral>```
 
-| ADD      | Add content of reg1 to reg2 and store result in reg3                                                                                                              |
-|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ADDC     | Add content of reg1 to 16bit constant and store result in reg3                                                                                                    |
-| SUB      | Subtract content of reg2 from reg1 and store result in reg3                                                                                                       |
-| SUBC     | Subtract 16bit constant from contents of reg1 and store in reg3                                                                                                   |
-| AND      | Bitwise AND contents of reg1, reg2 and store result in reg3                                                                                                       |
-| ANDC     | Bitwise AND contents of reg1, sign extended 16bit constant and store result in reg3                                                                               |
-| OR       | Bitwise OR contents of reg1, reg2 and store result in reg3                                                                                                        |
-| ORC      | Bitwise OR contents of reg1, sign extended 16bit constant and store result in reg3                                                                                |
-| XOR      | Bitwise XOR contents of reg1, reg2 and store result in reg3                                                                                                       |
-| XORC     | Bitwise XOR contents of reg1, sign extended 16bit constant and store result in reg2                                                                               |
-| BEQ/BNE  | Change PC to address releative to current PC (curPC - sign extended constant) and save current PC to reg3 if content of reg1 is equal to/ not equal to 0x00000000 |
-| CMPLE    | Store 0x00000001 in reg3 if content of reg1 is smaller than or equal to reg2                                                                                      |
-| CMPLEC   | Store 0x00000001 in reg2 if content of reg1 is smaller than or equal to sign extended 16bit constant                                                              |
-| CMPEQ    | Store 0x00000001 in reg3 if content of reg1 is equal to reg2                                                                                                      |
-| CMPEQC   | Store 0x00000001 in reg3 if content of reg1 is equal to sign extended 16bit constant                                                                              |
-| CMPLT    | Store 0x00000001 in reg3 if content of reg1 is smaller than reg2                                                                                                  |
-| CMPLTC   | Store 0x00000001 in reg3 if content of reg1 is less than sign extended 16bit constant                                                                             |
-| LD       | load memory content at address sign extended constant + reg1 to reg3                                                                                              |
-| LDR      | load memory content at address sign extended constant + current PC to reg3                                                                                        |
-| MUL      | Multiply contents of reg1, reg2 and store it in reg3                                                                                                              |
-| MULC     | Multiply content of reg1 with sign extended 16bit constant and store it in reg3                                                                                   |
-| SHL/SHLC | Shift left contents of reg1 by reg2/16bit sign extended constant and store it in reg3                                                                             |
-| SHR/SHRC | Shift right contents of reg1 by reg2/16bit sign extended constant and store it in reg3                                                                            |
-| SRA/SRAC | Shift right and pad with sign of reg1, contents of reg1 by reg2/16bit sign extended constant and store it in reg3/reg2                                            |
-| ST       | Store contents of reg3 in memory location calculated by reg1 + 16bit sign extended constant                                                                       |
-| JMP      | Change PC to address calculated by reg1&0xFFFFFFFC constant and store current address to reg3                                                                     |
+| Instruction | Description                                                                                                                                                       |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ADD         | Add content of reg1 to reg2 and store result in reg3                                                                                                              |
+| ADDC        | Add content of reg1 to 16bit constant and store result in reg3                                                                                                    |
+| SUB         | Subtract content of reg2 from reg1 and store result in reg3                                                                                                       |
+| SUBC        | Subtract 16bit constant from contents of reg1 and store in reg3                                                                                                   |
+| AND         | Bitwise AND contents of reg1, reg2 and store result in reg3                                                                                                       |
+| ANDC        | Bitwise AND contents of reg1, sign extended 16bit constant and store result in reg3                                                                               |
+| OR          | Bitwise OR contents of reg1, reg2 and store result in reg3                                                                                                        |
+| ORC         | Bitwise OR contents of reg1, sign extended 16bit constant and store result in reg3                                                                                |
+| XOR         | Bitwise XOR contents of reg1, reg2 and store result in reg3                                                                                                       |
+| XORC        | Bitwise XOR contents of reg1, sign extended 16bit constant and store result in reg2                                                                               |
+| BEQ/BNE     | Change PC to address releative to current PC (curPC - sign extended constant) and save current PC to reg3 if content of reg1 is equal to/ not equal to 0x00000000 |
+| CMPLE       | Store 0x00000001 in reg3 if content of reg1 is smaller than or equal to reg2                                                                                      |
+| CMPLEC      | Store 0x00000001 in reg2 if content of reg1 is smaller than or equal to sign extended 16bit constant                                                              |
+| CMPEQ       | Store 0x00000001 in reg3 if content of reg1 is equal to reg2                                                                                                      |
+| CMPEQC      | Store 0x00000001 in reg3 if content of reg1 is equal to sign extended 16bit constant                                                                              |
+| CMPLT       | Store 0x00000001 in reg3 if content of reg1 is smaller than reg2                                                                                                  |
+| CMPLTC      | Store 0x00000001 in reg3 if content of reg1 is less than sign extended 16bit constant                                                                             |
+| LD          | load memory content at address sign extended constant + reg1 to reg3                                                                                              |
+| LDR         | load memory content at address sign extended constant + current PC to reg3                                                                                        |
+| MUL         | Multiply contents of reg1, reg2 and store it in reg3                                                                                                              |
+| MULC        | Multiply content of reg1 with sign extended 16bit constant and store it in reg3                                                                                   |
+| SHL/SHLC    | Shift left contents of reg1 by reg2/16bit sign extended constant and store it in reg3                                                                             |
+| SHR/SHRC    | Shift right contents of reg1 by reg2/16bit sign extended constant and store it in reg3                                                                            |
+| SRA/SRAC    | Shift right and pad with sign of reg1, contents of reg1 by reg2/16bit sign extended constant and store it in reg3/reg2                                            |
+| ST          | Store contents of reg3 in memory location calculated by reg1 + 16bit sign extended constant                                                                       |
+| JMP         | Change PC to address calculated by reg1&0xFFFFFFFC constant and store current address to reg3                                                                     |
+
+
+Assembly Language
+=================
+A modified variant of at&t based assembly language is used where instructions are coded as:
+`<Instruction> <space> <Register(s)/Label separated by comma>`
+
+An example assembly code is:
+```assembly
+  ...
+  ...
+; First load each register with its
+; number using only OP instructions
+
+	AND %r31, %r31, %r0     ; AND 0x0, 0x0 and store it in %r0
+	CMPEQ %r31, %r31, %r1   ; Store 0x1 in %r1 if %r31 == %r31
+	ADD %r1, %r1, %r2       ; ...
+	OR %r2, %r1, %r3
+	SHL %r1, %r2, %r4
+  ...
+  ...
+```
 
 Verification
 ============
@@ -79,15 +102,22 @@ Files for performing tests:
 
 These are used by [ProcessorTestbench.v](sources/testbench/ProcessorTestbench.v)
 
+Test Programs
+=============
+This repository also includes few test program that verifies behavior of processor  
+* Basic test (ALU, PC, Memory and Register file) [[BasicTest.r.asm](tests/BasicTest.r.asm)]
+* Advanced test (Branching, jump inst. and interrupts) [[BranchingTest.r.asm](tests/BasicTest.r.asm) description of test is [here](tests/BasicTest.r.asm)]
+
 Assembler and Dissasembler
 ==========================
 A very simple assembler (partially complete at [Assembler.py](resources/assembler.py)) and disassembler ([Disassembler.py](resources/disassembler.py))
 
 TODOs
 =====
-[ ] Verify implementation using an FPGA  
-[ ] Increase performance by introducing pipelining  
-[ ] Write simple OS with drivers for VGA text mode
+- [ ] Complete assembler with support for macros
+- [ ] Verify implementation using an FPGA  
+- [ ] Increase performance by introducing pipelining  
+- [ ] Write simple OS with drivers for VGA text mode
 
 Contributor
 ===========

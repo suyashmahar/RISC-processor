@@ -1,3 +1,7 @@
+; This test is modified version of original content provided 
+; under CC-by-NC-SA license by MIT OCW.
+
+
 ; Basic test of Processor 
 ;   Primary Tests:
 ;       > Memory Tests: Write to memory address : 0x3FC

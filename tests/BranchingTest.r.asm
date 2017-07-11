@@ -1,3 +1,7 @@
+; This test is modified version of original content provided 
+; under CC-by-NC-SA license by MIT OCW.
+
+
 ; Branching tests
 
 . = 0
