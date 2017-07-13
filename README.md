@@ -108,6 +108,11 @@ This repository also includes few test program that verifies behavior of process
 * Basic test (ALU, PC, Memory and Register file) [[BasicTest.r.asm](tests/BasicTest.r.asm)]
 * Advanced test (Branching, jump inst. and interrupts) [[BranchingTest.r.asm](tests/BasicTest.r.asm) description of test is [here](tests/BasicTest.r.asm)]
 
+Example Programs
+=============
+- An example program is also provided which calculates value of 2 raised to the power of consecutive integer.  
+[powers-of-two](examples/powers-of-two/README.md)
+
 Assembler and Dissasembler
 ==========================
 A very simple assembler (partially complete at [Assembler.py](resources/assembler.py)) and disassembler ([Disassembler.py](resources/disassembler.py))
