@@ -5,14 +5,16 @@ module Processor
     parameter RstAddr = 32'h80000000,     // Address to jump upon RESET
     parameter XAddr = 32'h80000008,       // Address to jump upon exception
     parameter IllOpAddr = 32'h80000004,    // Address to jump upon execution of illegal Op-code
-    parameter XPReg = 5'b11110            // Register add for storing pc upon exception
+    parameter XPReg = 5'b11110,           // Register add for storing pc upon exception
+    parameter DisplayBufferSize = 256    // Bits
     )(
-      input wire 	 clk,
-      input wire 	 RESET,
-      input wire 	 IRQ,
-      output wire [31:0] InstAdd       //Address of next instruction to fetch
-      );
-   
+      input wire 			clk, // Global clock
+      input wire 			RESET, // External RESET input
+      input wire 			IRQ, // Interrupt
+      output wire [DisplayBufferSize-1:0] DisplayBuffer  // Memory output for display 
+   );
+      
+   wire [31:0] 		  InstAdd;      //Address of next instruction to fetch
    wire [31:0] 		 InstData;      // Instruction fetched from memory
    wire [31:0] 		 SextC;		// Gets C from Inst and sign extends it
    wire 		 WERF;		// Write enable for register file
@@ -36,7 +38,7 @@ module Processor
    wire [31:0] 		 ShftSextC;	// 4*SextC
    wire [31:0] 		 PcIncr;
    wire [31:0] 		 branchOffset;
-   
+   wire 		 MEMTYPE;
    wire 		 Z;
    
    assign Rc = InstData[25:21];
@@ -45,7 +47,7 @@ module Processor
    assign JT = {{RD1[31:2]}, {2'b00}};
 
    assign Z = RD1 == 32'h00000000;
-   
+
    ProgramCounter #(32) pc_inst 
      (
       .RESET(RESET), 
@@ -106,16 +108,20 @@ module Processor
       .RD2(RD2)
       );
    
-   BranchingTestMemory mem_inst
-     (
-      .clk(clk), 
-      .InstAdd({{1'b0}, {InstAdd[30:0]}}/4),
-      .DataAdd(aluRes/4),
-      .MemDataContent(RD2),
-      .DataReadEn(~WR), 
-      .DataWriteEn(WR),
-      .MemDataOut(MemDataOut), 
-      .MemInstOut(InstData)			 
+   PowerOfTwoMemory
+     #(
+       256 // Display buffer width
+       ) mem_inst (
+	 .clk(clk), 
+	 .InstAdd({{1'b0}, {InstAdd[30:0]}}),
+	 .DataAdd(aluRes),
+	 .MemDataContent(RD2),
+	 .DataReadEn(~WR), 
+	 .DataWriteEn(WR),
+	 .MemDataOut(MemDataOut), 
+	 .MemInstOut(InstData),
+	 .DisplayBuffer(DisplayBuffer),
+   .MEMTYPE(MEMTYPE)
       );
    
    CtrlLogicModule ctrl_inst
@@ -129,6 +135,7 @@ module Processor
       .BSEL(BSEL),
       .WDSEL(WDSEL),
       .ALUFN(ALUFN),
+      .MEMTYPE(MEMTYPE),
       .pc_31(InstAdd[31]),
       .WR(WR),
       .WERF(WERF),
