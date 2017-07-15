@@ -19,7 +19,7 @@ module BranchingTestMemory
       output wire [DisplayBufferSize-1:0] DisplayBuffer
       );
    
-   reg [31:0] 				  mem [1023:0];
+   reg [31:0] 				  mem [10230:0];
    reg [7:0] 				  dispMem [DisplayBufferSize/8:0];
    
    
