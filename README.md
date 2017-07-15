@@ -111,7 +111,9 @@ This repository also includes few test program that verifies behavior of process
 Example Programs
 =============
 - An example program is also provided which calculates value of 2 raised to the power of consecutive integer.  
-[powers-of-two](examples/powers-of-two/README.md)
+[powers-of-two](examples/powers-of-two/README.md)  
+- Example program for displaying values to a LCD(16x2).  
+[simpleDisplay](examples/simple-display/README.md)
 
 Assembler and Dissasembler
 ==========================
