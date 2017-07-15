@@ -108,7 +108,7 @@ module Processor
       .RD2(RD2)
       );
    
-   PowerOfTwoMemory
+   BasicTestMemory
      #(
        256 // Display buffer width
        ) mem_inst (

@@ -1,35 +1,35 @@
 //emacsclient -n +[line number] [file name]
 `timescale 1ns / 1ps
 
-// This module was manually verified
-module CtrlLogicModule(
-    input wire [5:0] OPCODE,
-    input wire 	     RESET,
-    input wire 	     Z,
-    input wire 	     IRQ,
-    input wire 	     pc_31,
-		       
-    output reg [2:0] PCSEL,
-    output reg 	     RA2SEL,
-    output reg 	     ASEL,
-    output reg 	     BSEL,
-    output reg [1:0] WDSEL,
-    output reg [5:0] ALUFN,
-    output reg 	     WR,
-    output reg 	     WERF,
-    output reg 	     WASEL,
-    output reg       MEMTYPE
-);
+module CtrlLogicModule
+  (
+   input wire [5:0] OPCODE,
+   input wire 	    RESET,
+   input wire 	    Z,
+   input wire 	    IRQ,
+   input wire 	    pc_31,
+  
+   output reg [2:0] PCSEL,
+   output reg 	    RA2SEL,
+   output reg 	    ASEL,
+   output reg 	    BSEL,
+   output reg [1:0] WDSEL,
+   output reg [5:0] ALUFN,
+   output reg 	    WR,
+   output reg 	    WERF,
+   output reg 	    WASEL,
+   output reg 	    MEMTYPE
+   );
 
-   reg [17:0] 	     opcodeROM [63:0];
-   wire [5:0] 	     opcode_extended;
+   reg [17:0] 	    opcodeROM [63:0];
+   wire [5:0] 	    opcode_extended;
 
    assign opcode_extended = (~pc_31 & IRQ) ? 6'b000000 : OPCODE;
    
    initial begin
        WR = 0;
        WERF = 0;
-              
+       
        opcodeROM[6'b000000] = 18'b100000000010101100;   // STV
        opcodeROM[6'b000001] = 18'b000000101100000011;
        opcodeROM[6'b000010] = 18'b000001001100000011;
@@ -95,13 +95,13 @@ module CtrlLogicModule(
        opcodeROM[6'b111110] = 18'b010001100000101010;   // SRAC
        opcodeROM[6'b111111] = 18'b011111101100000011;
        
-    end
+   end
 
-    // ROM description
-    // <Mem-type><ALUFN-6><PCSEL-3><RA2SEL><ASEL><BSEL><WDSEL-2><WR><WERF><WASL>
+   // ROM description
+   // <Mem-type><ALUFN-6><PCSEL-3><RA2SEL><ASEL><BSEL><WDSEL-2><WR><WERF><WASL>
    always @(opcode_extended, RESET, Z) begin
-      #5
-	    ALUFN = opcodeROM[opcode_extended][16:11];         
+       #5
+	 ALUFN = opcodeROM[opcode_extended][16:11];         
        RA2SEL = opcodeROM[opcode_extended][7];             // ✔
        ASEL = opcodeROM[opcode_extended][6];               
        BSEL = opcodeROM[opcode_extended][5];               // ✔
@@ -115,11 +115,11 @@ module CtrlLogicModule(
        // on Z
        if (opcode_extended == 6'b011101) begin   // BEQ
 	   PCSEL = {{2'b00}, {Z}};               
-       end else if (opcode_extended == 6'b011110) begin // BNE
-	   PCSEL = {{2'b00}, {~Z}};               
-       end else begin
-	   PCSEL = opcodeROM[opcode_extended][10:8];
-       end
+   end else if (opcode_extended == 6'b011110) begin // BNE
+       PCSEL = {{2'b00}, {~Z}};               
+	end else begin
+	    PCSEL = opcodeROM[opcode_extended][10:8];
+	end
 
    end // always @ (OPCODE, RESET, Z)
 endmodule // CtrlLogicModule

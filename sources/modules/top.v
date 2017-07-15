@@ -1,19 +1,19 @@
 `timescale 1ns / 1ps
- 
+
 module top
   #(
     parameter DisplayBufferSize = 256 
     )(
-   // Global clock
-   input wire  clk,
-   input wire  RESET,
-   input wire  IRQ,
-   // Output wires for LCD
-   output wire lcd_rs, lcd_rw, lcd_e, lcd_4, lcd_5, lcd_6, lcd_7
-   );
+      // Global clock
+      input wire  clk,
+      input wire  RESET,
+      input wire  IRQ,
+      // Output wires for LCD
+      output wire lcd_rs, lcd_rw, lcd_e, lcd_4, lcd_5, lcd_6, lcd_7
+      );
 
    wire [DisplayBufferSize:0] DisplayBuffer;	// Display buffer from memory
-   wire [256:0] chars;		// chars in ascii for LCD
+   wire [256:0] 	      chars;		// chars in ascii for LCD
    
    Processor processor_instance
      (

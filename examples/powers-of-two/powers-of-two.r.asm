@@ -32,12 +32,12 @@ IRQ:
     CMPEQC %r26, 0x1, %r25 
     BNE 25, PrintRout, %r31     ; Branch to Print Routine if value at 
                                 ; r26 is 1
-	BRStart 
+	BR Start 
 
 ; Print routine passes contents of r25 to 
 ; display buffer.
 PrintRout:                                
-    ST %r24, 0x3F7, %r31 
+    STV %r24, 0x0, %r31 
 	JMP %r30, %r31 
 
 ; Main execution part of program

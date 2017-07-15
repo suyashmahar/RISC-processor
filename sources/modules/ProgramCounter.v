@@ -1,26 +1,26 @@
 `timescale 1ns / 1ps
 
 module ProgramCounter #(
-    parameter ARCHITECTURE = 32 
-)(
-  input wire 			 RESET, // Resets PC to 0x0
-  input wire 			 clk, // Global clk
-  input wire [2:0] 		 PCSEL, // Selects source of next PC 
-  input wire [31:0] 		 XAddr,
-  input wire [31:0] 		 RstAddr,
-  input wire [31:0] 		 IllOpAddr,
-  input wire 			 IRQ,
-  input wire [31:0] 		 JT,
-  input wire [31:0] 		 ShftSextC, // 4*SextC 
-  
-  output wire [ARCHITECTURE-1:0] pc_o, // Program counter output
-  output wire [31:0] 		 PcIncr,
-  output wire [31:0] 		 branchOffset
-  );
+			parameter ARCHITECTURE = 32 
+			)(
+			  input wire 			 RESET, // Resets PC to 0x0
+			  input wire 			 clk, // Global clk
+			  input wire [2:0] 		 PCSEL, // Selects source of next PC 
+			  input wire [31:0] 		 XAddr,
+			  input wire [31:0] 		 RstAddr,
+			  input wire [31:0] 		 IllOpAddr,
+			  input wire 			 IRQ,
+			  input wire [31:0] 		 JT,
+			  input wire [31:0] 		 ShftSextC, // 4*SextC 
+
+			  output wire [ARCHITECTURE-1:0] pc_o, // Program counter output
+			  output wire [31:0] 		 PcIncr,
+			  output wire [31:0] 		 branchOffset
+			  );
    
-   reg [31:0] 			 pc;
+   reg [31:0] 						 pc;
    
-   wire 			 MsbJt;
+   wire 						 MsbJt;
    
    assign pc_o = RESET ? RstAddr : pc;
    assign PcIncr = pc + 32'h00000004;
