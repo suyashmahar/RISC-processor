@@ -108,7 +108,7 @@ module Processor
       .RD2(RD2)
       );
    
-   BasicTestMemory
+   BranchingTestMemory
      #(
        256 // Display buffer width
        ) mem_inst (

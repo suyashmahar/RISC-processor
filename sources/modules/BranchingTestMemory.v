@@ -1,19 +1,35 @@
 `timescale 1ns/1ps
-module BranchingTestMemory(
-    input wire 	      clk,
-		       
-    input wire [31:0] InstAdd, // Address to fetch instruction from
-    input wire [31:0] DataAdd, // Address to fetch data from
-    input wire [31:0] MemDataContent,
-		       
-    input wire 	      DataReadEn, // Enables output from memory
-    input wire 	      DataWriteEn, // Enables writing to memory at end of cur. cycle
+module BranchingTestMemory
+  #(
+    parameter DisplayBufferSize = 256 
+    )(
+      input wire 			  clk,
+  
+      input wire [31:0] 		  InstAdd, // Address to fetch instruction from
+      input wire [31:0] 		  DataAdd, // Address to fetch data from
+      input wire [31:0] 		  MemDataContent,
+  
+      input wire 			  DataReadEn, // Enables output from memory
+      input wire 			  DataWriteEn, // Enables writing to memory at end of cur. cycle
 
-    output reg [31:0] MemDataOut, // Data from memory
-    output reg [31:0] MemInstOut); // Instruction from memory	
+      input wire 			  MEMTYPE, // Enables writing to memory at end of cur. cycle
+  
+      output reg [31:0] 		  MemDataOut, // Data from memory
+      output reg [31:0] 		  MemInstOut,// Instruction from memory	
+      output wire [DisplayBufferSize-1:0] DisplayBuffer
+      );
    
-   reg [31:0] 	      mem [1023:0];
- 	      
+   reg [31:0] 				  mem [1023:0];
+   reg [7:0] 				  dispMem [DisplayBufferSize/8:0];
+   
+   
+   genvar 				  i;
+   generate
+       for (i = 0; i < DisplayBufferSize/8; i = i + 1) begin
+	   assign DisplayBuffer[(i+1)*8 - 1 : i*8] = dispMem[DisplayBufferSize/8-i-1][7:0];
+       end
+   endgenerate
+   
    initial begin
        mem[0] = 32'h77df000a;
        mem[1] = 32'h77ff0003;
@@ -270,17 +286,29 @@ module BranchingTestMemory(
        
    end
    
+   
    always @(posedge clk) begin
        //#1
        if (DataWriteEn) begin
-	   mem[DataAdd] = MemDataContent;
-	end
+           if (MEMTYPE) begin
+               dispMem[DataAdd] = MemDataContent;
+
+           end else begin
+               mem[DataAdd/4] = MemDataContent;
+               
+           end
+       end
    end
-   
-   always @(DataAdd, InstAdd) begin
+
+   always @(mem, DataAdd, InstAdd, MEMTYPE) begin
        //#2
-       MemInstOut = mem[InstAdd];
-       MemDataOut = mem[DataAdd];
+       MemInstOut = mem[InstAdd/4];
+
+       if (MEMTYPE) begin
+           MemDataOut = dispMem[DataAdd];       
+       end else begin
+           MemDataOut = mem[DataAdd/4];
+       end
    end
 endmodule // BasicTestMemory
 
