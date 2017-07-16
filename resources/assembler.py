@@ -1,9 +1,19 @@
+# (c) 2017 Suyash Mahar
+# This file is license under MIT-license available at
+#  https://github.com/suyashmahar/RISC-processor/blob/master/LICENSE
+
+""" Simple assembler for RISC-processor
+
+This only assembles very simple assembly programs written for 
+RISC-processor that do not contain labels
+"""
+
 import re
 import string
 import sys
 
-""" Define enum """ 
 def enum(**enums):
+    """ Define enum """ 
     return type('Enum', (), enums)
 
 # Defines error_codes
@@ -12,8 +22,8 @@ Errors = enum(ILLOP = 0, ILLREG=1)
 # symbol table
 sym_table = {}
 
-""" Compiles op codes into single dimensional array """
 def compile_opcodes():
+    """ Compiles op codes into single dimensional array """
     # Define opcodes
     opcodes = \
     """.       .       .       .       .       .       .       .
@@ -31,40 +41,36 @@ def compile_opcodes():
     # Read opcodes to single dimensional array
     return rr.findall(opcodes)
 
-"""
-    Removes all comments from program
-"""
 def strip_comments(prog_content):
+    """ Removes all comments from program """
     # temp = re.sub(r'[\n]+', '', prog_content)
     return re.sub(r';.*', '', prog_content)
 
-""" Adds label with address to symbol table """
 def add_to_sym_table(label, address):
+    """ Adds label with address to symbol table """
     global sym_table
     sym_table[label] = address
 
-""" Converts bits to int to 2's complement representation """
 def twos_complement(in_int, bits):
+    """ Converts bits to int to 2's complement representation """
     s = bin(in_int & int("1"*bits, 2))[2:]
     return ("{0:0>%s}" % (bits)).format(s)
 
-""" Converts literal to hex if it is decimal, returns int """
 def fix_literal(literal):
+    """ Converts literal to hex if it is decimal, returns int """
     if (literal[0:2] == "0x"):
         return twos_complement(int(literal[2:], 16), 16)
     else:
         return twos_complement(int(literal), 16) 
 
-""" Returns label offset from current address """
 def get_label_offset(label, addr):
+    """ Returns label offset from current address """
     global sym_table
     return fix_literal(addr - sym_table[label])
 
-"""
-    Converts one instruction into corresponding 
-    machine language instruction
-"""
 def convert_inst(instr, opcodes, addr):
+    """ Converts one instruction into corresponding 
+        machine language instruction """
     keyword_arr = re.split(r', |,| ', instr)
     result ='{0:06b}'.format(opcodes.index(keyword_arr[0].upper()))
 
@@ -102,20 +108,16 @@ def convert_inst(instr, opcodes, addr):
             result += '0'*11 # padding
     return result
 
-"""
-    Error handling
-"""
 def handle_error(error_code, instruction):
+    """ Error handling """
     if (error_code == Errors.ILLOP):
         print "Illegal op code : " + str(instruction)
     elif (error_code == Errors.ILLREG):
         print "Illegal reg index : " + str(instruction)
     exit()
 
-"""
-    Entry point of script
-"""
 def main(file_name):
+    """ Entry point of script """
     # Load content of file and strip all comments
     program_content = open(file_name, 'r').read()
     program_content = strip_comments(program_content)
