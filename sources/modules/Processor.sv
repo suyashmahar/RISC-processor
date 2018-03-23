@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "dispConsts.svh"
 
 module Processor 
   #(
@@ -11,25 +12,25 @@ module Processor
       input wire 			clk, // Global clock
       input wire 			RESET, // External RESET input
       input wire 			IRQ, // Interrupt
-      output wire [DisplayBufferSize-1:0] DisplayBuffer  // Memory output for display 
+      input wire [ASCII_SIZE-1:0] DisplayBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0]  // Memory output for display 
    );
       
-   wire [31:0] 		  InstAdd;      //Address of next instruction to fetch
+   wire [31:0] 		 InstAdd;       //Address of next instruction to fetch
    wire [31:0] 		 InstData;      // Instruction fetched from memory
-   wire [31:0] 		 SextC;		// Gets C from Inst and sign extends it
-   wire 		 WERF;		// Write enable for register file
-   reg [31:0] 		 WD;	        // Write data for register file
+   wire [31:0] 		 SextC;		    // Gets C from Inst and sign extends it
+   wire 		     WERF;		    // Write enable for register file
+   reg  [31:0] 		 WD;	        // Write data for register file
    wire [31:0] 		 RD1;		// Data from 1st register corresponding to Ra
    wire [31:0] 		 RD2;		// Data from 2nd register corresponding to Rb
    wire [2:0] 		 PCSEL;		// Control for mux selecting next PC
-   wire 		 RA2SEL;	// Controls mux selecting add. for 2nd reg in regile
-   wire 		 ASEL;		// Selects input 'A' for ALU
-   wire 		 BSEL;		// Selects input 'B' for ALU
+   wire 		     RA2SEL;	// Controls mux selecting add. for 2nd reg in regile
+   wire 		     ASEL;		// Selects input 'A' for ALU
+   wire 		     BSEL;		// Selects input 'B' for ALU
    wire [1:0] 		 WDSEL;		// Selects WD
    wire [5:0] 		 ALUFN;		// alu function 
    wire [31:0] 		 aluRes;       	// Result from ALU
-   wire 		 WR;		// Write enable for memory
-   wire 		 WASEL;		// Selects write add. for reg file
+   wire 		     WR;		// Write enable for memory
+   wire 		     WASEL;		// Selects write add. for reg file
    wire [31:0] 		 MemDataOut;	// Output from memory (data)
    wire [31:0] 		 a;		// Input 'A' to ALU 
    wire [31:0] 		 b;		// Input 'B' to ALU
@@ -38,8 +39,8 @@ module Processor
    wire [31:0] 		 ShftSextC;	// 4*SextC
    wire [31:0] 		 PcIncr;
    wire [31:0] 		 branchOffset;
-   wire 		 MEMTYPE;
-   wire 		 Z;
+   wire 		     MEMTYPE;
+   wire 		     Z;
    
    assign Rc = InstData[25:21];
    assign SextC = {{16{InstData[15]}}, InstData[15:0]};

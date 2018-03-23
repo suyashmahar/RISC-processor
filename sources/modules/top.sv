@@ -9,10 +9,11 @@ module top
       input wire  RESET,
       input wire  IRQ,
       // Output wires for LCD
-      output wire lcd_rs, lcd_rw, lcd_e, lcd_4, lcd_5, lcd_6, lcd_7
+      output wire hSync, vSync,
+      output wire [3-1:0] red, green, blue
       );
 
-   wire [DisplayBufferSize:0] DisplayBuffer;	// Display buffer from memory
+   wire [ASCII_SIZE-1:0] DisplayBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0];	// Display buffer from memory
    wire [256:0] 	      chars;		// chars in ascii for LCD
    
    Processor processor_instance
@@ -23,11 +24,12 @@ module top
       .DisplayBuffer(DisplayBuffer)
       );
 
-   LCD lcd_instance
+   draw vga_instance
      (
-      .clk(clk),
-      .chars(DisplayBuffer),
-      .lcd_rs(lcd_rs), .lcd_rw(lcd_rw),. lcd_e(lcd_e),. lcd_4(lcd_4),. lcd_5(lcd_5),. lcd_6(lcd_6), .lcd_7(lcd_7)
+      .clk_25M(clk),
+      .charBuffer(DisplayBuffer),
+      .hSync(hSync), .vSync(vSync),
+      .red(red), .green(green), .blue(blue)
       );
    
 

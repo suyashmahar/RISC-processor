@@ -1,4 +1,6 @@
 `timescale 1ns/1ps
+`include "dispConsts.svh"
+
 module SimpleDisplayMemory
   #(
     parameter DisplayBufferSize = 256
@@ -16,16 +18,20 @@ module SimpleDisplayMemory
   
       output reg [31:0] 		  MemDataOut, // Data from memory
       output reg [31:0] 		  MemInstOut, // Instruction from memory	
-      output wire [DisplayBufferSize-1:0] DisplayBuffer
+      output wire [ASCII_SIZE-1:0] DisplayBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0]
       );
    
    reg [31:0] 				  mem [1023:0];
-   reg [7:0] 				  dispMem [DisplayBufferSize/8:0];
+   // Declare an internal flat representation of display memory
+   reg [ASCII_SIZE-1:0] dispMem [CHARS_VERT*CHARS_HORZ-1:0]; 
 
-   genvar 				  i;
+    // *Un-flatten* the display memory
+   genvar 				  x, y, z;
    generate
-       for (i = 0; i < DisplayBufferSize/8; i = i + 1) begin
-	   assign DisplayBuffer[(i+1)*8 - 1 : i*8] = dispMem[DisplayBufferSize/8-i-1][7:0];
+       for (x = 0; x < CHARS_VERT; x++) begin
+       for (y = 0; y < CHARS_HORZ; y++) begin
+	   assign DisplayBuffer[x][y] = dispMem[x*y];
+       end
        end
    endgenerate
 
